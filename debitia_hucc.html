@@ -1,0 +1,36 @@
+<html>
+<head>
+<style>
+    body {
+        margin: 0;
+        display: flex;
+        height: 100vh;
+    }
+    .contenido {
+        flex: 1;
+        padding: 20px;
+    }
+    #hucc_iframe {
+        width: 23%;
+        height: 100%;
+        border: none;
+    }
+</style>
+
+<script src="debitia_vocalcom_hucc.js"></script>
+</head>
+
+<body>
+	<div class="contenido">
+		<h2>ESTE ES EL CRM DEL CLIENTE</h2>
+		<label for="txtTelefono">Número de teléfono:</label><br>
+		<input type="text" id="txtTelefono" placeholder="Ingrese número"><br><br>
+		<button onclick="manualCall('1112345678')">Llamar</button>
+	</div>
+
+	<iframe id="hucc_iframe" 
+		src="https://vcl8-cloud.vocalcom-latam.com/hermes360/HUCC/ProxyHermesFront/Standalone/en/?HUCCLoader=https://vcl8-cloud.vocalcom-latam.com/hermes360/HUCC/ProxyHermesCRMPlugins/Debitia/DebitiaLoader.js&identification=f1248">
+	</iframe>
+
+</body>
+</html>
