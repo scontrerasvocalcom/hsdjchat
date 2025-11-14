@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>CRM INTELET</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f5f7fa;
+    }
+
+    /* Panel izquierdo */
+    .left-panel {
+        flex: 1;
+        padding: 30px 50px;
+        overflow-y: auto;
+        background: #ffffff;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    header img {
+        height: 70px;
+    }
+
+    header h1 {
+        margin-left: 20px;
+        font-size: 28px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #444;
+        margin-top: 25px;
+        margin-bottom: 10px;
+    }
+
+    /* Estilo moderno de inputs */
+    input[type="text"],
+    select {
+        width: 250px;
+        height: 40px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+        transition: 0.2s;
+        outline: none;
+        background: #fafafa;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+        border-color: #007bff;
+        background: #fff;
+        box-shadow: 0 0 3px rgba(0, 123, 255, 0.4);
+    }
+
+    /* Botones modernos */
+    button {
+        height: 40px;
+        padding: 0 25px;
+        border-radius: 8px;
+        border: none;
+        background: #007bff;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #0056d2;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 15px 0;
+    }
+
+    /* Etiquetas */
+    .data-labels label {
+        font-size: 15px;
+        color: #555;
+        display: block;
+        margin: 4px 0;
+    }
+
+    /* Panel derecho: HUCC iframe */
+    .right-panel {
+        width: 25%;
+        background: #fff;
+    }
+
+    #hucc_iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+</style>
+
+<script >
+function manualCall(){
+var telefono = document.getElementById('txtTelefono').value;
+vc.dialManualCall(telefono);
+}
+</script>
+</head>
+
+<body>
+<!--
+AGREGAR:
+	- BOTON COLGAR
+	- CALIFICAR
+	- DATOS DE LLAMADA
+	- LISTAR CAMPAÑAS EN COMBO
+	- LLAMAR A CAMPAÑAS DE COMBO
+	
+-->
+<!-- PANEL IZQUIERDO -->
+<div class="left-panel">
+
+    <header>
+        <img src="https://inteletgroup.com/wp-content/uploads/2024/06/logo_tr.png" alt="Logo Intelet">
+        <h1>CRM INTELET</h1>
+    </header>
+
+    <!-- ESTADO AGENTE -->
+    <div class="section-title">ESTADO AGENTE</div>
+
+    <div class="row">
+        <input type="text" id="txtTelefono" placeholder="Número...">
+        <button onclick="manualCall()">Llamar</button>
+    </div>
+
+    <!-- DATOS -->
+    <div class="section-title">TELEFONO Y DATOS</div>
+
+    <div class="data-labels">
+        <label id="telefono">TELEFONO:</label>
+        <label id="data1">DATA1:</label>
+        <label id="data2">DATA2:</label>
+        <label id="data3">DATA3:</label>
+        <label id="memo">MEMO:</label>
+    </div>
+
+    <!-- CALIFICAR -->
+    <div class="section-title">CALIFICACIÓN</div>
+
+    <div class="row">
+        <select>
+            <option value="">Seleccione...</option>
+            <option value="op1">Opción 1</option>
+            <option value="op2">Opción 2</option>
+        </select>
+
+        <button>Calificar</button>
+    </div>
+
+</div>
+
+<!-- PANEL DERECHO -->
+<div class="right-panel">
+    <iframe id="hucc_iframe"
+        src="https://cdn.s-br01a-product.prod1.vocalcomcx.com/hermes360/HUCC/ProxyHermesFront/Standalone/en/?HUCCLoader=https://cdn.s-br01a-product.prod1.vocalcomcx.com/hermes360/HUCC/ProxyHermesCRMPlugins/Intelet/InteletLoader.js&identification=a8888">
+    </iframe>
+</div>
+
+</body>
+</html>
+<script src="demo_hucc_custom_plugin.js" type="module"></script>
