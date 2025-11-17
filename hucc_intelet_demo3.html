@@ -120,15 +120,32 @@ function manualCall(){
 var telefono = document.getElementById('txtTelefono').value;
 vc.dialManualCall(telefono);
 }
+
+function callAgain(){
+var telefono = document.getElementById('txtTelefono').value;
+vc.callAgain(telefono);
+}
+
+function hangUpCall(){
+vc.hangUpCall();
+}
+
+function setDisposition(){
+	var calificacion = document.getElementById('calificacion').value;
+	if (!calificacion){
+		alert("Debe ingresar calificacion");
+		return;
+	}else{
+		vc.setDispositionCode(calificacion);
+	}
+}
 </script>
 </head>
 
 <body>
 <!--
 AGREGAR:
-	- BOTON COLGAR
-	- CALIFICAR
-	- DATOS DE LLAMADA
+	- BOTON RELLAMAR
 	- LISTAR CAMPAÑAS EN COMBO
 	- LLAMAR A CAMPAÑAS DE COMBO
 	
@@ -147,6 +164,21 @@ AGREGAR:
     <div class="row">
         <input type="text" id="txtTelefono" placeholder="Número...">
         <button onclick="manualCall()">Llamar</button>
+		<button onclick="callAgain()">Rellamar</button>
+		<button onclick="hangUpCall()">Colgar</button>
+    </div>
+	
+	<!-- CALIFICAR -->
+    <div class="section-title">CALIFICACIÓN</div>
+
+    <div class="row">
+        <select id="calificacion">
+            <option value="">Seleccione...</option>
+            <option value="1">COMUNICA</option>
+            <option value="2">NO COMUNICA</option>
+        </select >
+
+        <button onclick="setDisposition()">Calificar</button>
     </div>
 
     <!-- DATOS -->
@@ -160,18 +192,7 @@ AGREGAR:
         <label id="memo">MEMO:</label>
     </div>
 
-    <!-- CALIFICAR -->
-    <div class="section-title">CALIFICACIÓN</div>
-
-    <div class="row">
-        <select>
-            <option value="">Seleccione...</option>
-            <option value="op1">Opción 1</option>
-            <option value="op2">Opción 2</option>
-        </select>
-
-        <button>Calificar</button>
-    </div>
+    
 
 </div>
 

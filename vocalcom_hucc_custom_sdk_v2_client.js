@@ -22,9 +22,19 @@ export class IframeVocalcomBridge {
   dialManualCall(phoneNumber, campaignId = null) {
     return this.#cmd("dialManualCall", { phoneNumber, campaignId });
   }
+  
+  callAgain(phoneNumber) {
+    return this.#cmd("callAgain", { phoneNumber });
+  }
+  
+  hangUpCall() {
+    return this.#cmd("hangUpCall", {});
+  }
+  
   setDispositionCode(dispositionCode) {
     return this.#cmd("setDispositionCode", { dispositionCode });
   }
+  
   getPhoneCallData() {
     return this.#cmd("getPhoneCallData", {});
   }
