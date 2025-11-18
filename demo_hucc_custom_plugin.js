@@ -1,23 +1,30 @@
 import { IframeVocalcomBridge } from "./vocalcom_hucc_custom_sdk_v2_client.js";
 
 const iframe = document.getElementById("hucc_iframe");
+
+export let vc = null;   // <<----- AQUI EXPORTAMOS VC
+
 iframe.addEventListener("load", () => {
-	const iframeOrigin = new URL(iframe.src).origin; 
-	window.top.vc = new IframeVocalcomBridge(iframe, iframeOrigin);
-	
-	//vc.on("OnCallOnline", d => console.log("Call online:", d));
-	vc.on("OnCallOnline", d => displayEvent('Llamada en linea'));
-	vc.on("OnCallFree",  d => console.log("Call ended:", d));
-	vc.on("OnAgentPause",  d => console.log("Pause:", d));
+    
+    const iframeOrigin = new URL(iframe.src).origin;
+    
+    vc = new IframeVocalcomBridge(iframe, iframeOrigin);
+    window.top.vc = vc;     // opcional, si quieres exponerlo globalmente
+
+    // EVENTOS
+    vc.on("OnCallOnline", d => displayEvent('Llamada en línea'));
+    vc.on("OnCallFree",  d => console.log("Call ended:", d));
+    vc.on("OnAgentPause",  d => console.log("Pause:", d));
 });
 
 function displayEvent(mensaje){
-	
-	document.getElementById('eventos').innerText = mensaje;
-	vc.getPhoneCallData().then(data => {
-		console.log("Datos de la llamada:", data);
-	});
+    document.getElementById('eventos').innerText = mensaje;
+
+    vc.getPhoneCallData().then(data => {
+        console.log("Datos de la llamada:", data);
+    });
 }
+
 
 
 //suscribimos a eventos de prueba
