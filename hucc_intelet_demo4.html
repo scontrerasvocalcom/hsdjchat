@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>CRM INTELET</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f5f7fa;
+    }
+
+    .left-panel {
+        flex: 1;
+        padding: 30px 50px;
+        overflow-y: auto;
+        background: #ffffff;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    header img {
+        height: 70px;
+    }
+
+    header h1 {
+        margin-left: 20px;
+        font-size: 28px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* --- BANNER DE ESTADO --- */
+    .status-banner {
+        padding: 12px 18px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        color: white;
+        font-size: 17px;
+        font-weight: 600;
+        display: none;
+        text-align: center;
+    }
+    .status-ready { background: #007bff; }
+    .status-call { background: #28a745; }
+    .status-free { background: #ffc107; color:#333; font-weight:700; }
+    .status-pause { background: #dc3545; }
+
+    /* --- ESPERANDO LLAMADA --- */
+    .waiting-card {
+        background: #ffffff;
+        border: 1px solid #e6e9ef;
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 6px 16px rgba(20, 30, 50, 0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .waiting-top {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .waiting-text {
+        font-weight: 700;
+        color: #2b3a67;
+        font-size: 18px;
+        letter-spacing: 0.6px;
+    }
+
+    .waiting-sub {
+        color: #6b7280;
+        font-size: 13px;
+        margin: 12px 0 18px;
+        text-align: center;
+    }
+
+    /* Spinner */
+    .spinner {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: conic-gradient(#007bff 0% 35%, rgba(0,123,255,0.12) 35% 100%);
+        -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), black calc(100% - 5px));
+        animation: spin 1.2s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #444;
+        margin-top: 25px;
+        margin-bottom: 10px;
+    }
+
+    input[type="text"], select {
+        width: 250px;
+        height: 40px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+        background: #fafafa;
+        transition: 0.2s;
+    }
+
+    button {
+        height: 40px;
+        padding: 0 25px;
+        border-radius: 8px;
+        border: none;
+        background: #007bff;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:disabled {
+        background: #b5b5b5;
+        cursor: not-allowed;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 15px 0;
+    }
+
+    .data-labels label {
+        font-size: 15px;
+        color: #555;
+        display: block;
+        margin: 4px 0;
+    }
+
+    .right-panel {
+        width: 25%;
+        background: #fff;
+    }
+
+    #hucc_iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+</style>
+
+
+<!-- ============================= -->
+<!-- == LÓGICA DE CONTROL UI ===== -->
+<!-- ============================= -->
+<script>
+function setUIState(state) {
+
+    const banner = document.getElementById("statusBanner");
+    const waiting = document.getElementById("waitingCard");
+    const btnManual = document.getElementById("btn_llamadamanual");
+    const btnRellamar = document.getElementById("btn_rellamar");
+    const btnColgar = document.getElementById("btn_colgar");
+    const comboCal = document.getElementById("calificacion");
+    const btnCalificar = document.getElementById("btn_calificar");
+
+    banner.className = "status-banner"; // reset
+    banner.style.display = "block";
+
+    if(state === "AGENT_READY") {
+
+        banner.innerText = "Agente listo — Esperando llamada";
+        banner.classList.add("status-ready");
+
+        waiting.style.display = "flex";
+
+        btnManual.disabled = false;
+        btnRellamar.disabled = true;
+        btnColgar.disabled = true;
+
+        comboCal.disabled = true;
+        btnCalificar.disabled = true;
+    }
+
+    if(state === "CALL_ONLINE") {
+
+        banner.innerText = "En llamada...";
+        banner.classList.add("status-call");
+
+        waiting.style.display = "none";
+
+        btnManual.disabled = true;
+        btnRellamar.disabled = true;
+        btnColgar.disabled = false;
+
+        comboCal.disabled = false;
+        btnCalificar.disabled = false;
+    }
+
+    if(state === "CALL_FREE") {
+
+        banner.innerText = "Llamada finalizada";
+        banner.classList.add("status-free");
+
+        waiting.style.display = "none";
+
+        btnManual.disabled = true;
+        btnRellamar.disabled = false;
+        btnColgar.disabled = true;
+
+        comboCal.disabled = false;
+        btnCalificar.disabled = false;
+    }
+
+    if(state === "AGENT_PAUSE") {
+
+        banner.innerText = "Agente en pausa";
+        banner.classList.add("status-pause");
+
+        waiting.style.display = "none";
+
+        btnManual.disabled = true;
+        btnRellamar.disabled = true;
+        btnColgar.disabled = true;
+
+        comboCal.disabled = true;
+        btnCalificar.disabled = true;
+    }
+}
+</script>
+
+</head>
+
+
+<body>
+
+<div class="left-panel">
+
+    <header>
+        <img src="https://inteletgroup.com/wp-content/uploads/2024/06/logo_tr.png">
+        <h1>CRM INTELET</h1>
+    </header>
+
+    <!-- Banner dinámico -->
+    <div id="statusBanner" class="status-banner"></div>
+
+    <!-- ESPERANDO LLAMADA -->
+    <div id="waitingCard" class="waiting-card">
+        <div class="waiting-top">
+            <div class="spinner"></div>
+            <div class="waiting-text">ESPERANDO LLAMADA</div>
+        </div>
+        <p class="waiting-sub">Conectando al sistema...</p>
+    </div>
+
+    <div class="row">
+        <input type="text" id="txtTelefono" placeholder="Número...">
+		<script>
+			console.log("VC EN HTML:", window.vc);
+		</script>
+        <button id="btn_llamadamanual" onclick="manualCall()">Llamar</button>
+        <button id="btn_rellamar" onclick="callAgain()">Rellamar</button>
+        <button id="btn_colgar" onclick="hangUpCall()">Colgar</button>
+    </div>
+
+    <div class="section-title">CALIFICACIÓN</div>
+
+    <div class="row">
+        <select id="calificacion">
+            <option value="">Seleccione...</option>
+            <option value="1">COMUNICA</option>
+            <option value="2">NO COMUNICA</option>
+        </select>
+
+        <button id="btn_calificar" onclick="setDisposition()">Calificar</button>
+    </div>
+
+    <div class="section-title">DATOS DE LLAMADA</div>
+
+    <div class="data-labels">
+        <label id="telefono">TELEFONO:</label>
+        <label id="data1">DATA1:</label>
+        <label id="data2">DATA2:</label>
+        <label id="data3">DATA3:</label>
+        <label id="memo">MEMO:</label>
+    </div>
+
+</div>
+
+<div class="right-panel">
+    <iframe id="hucc_iframe"
+        src="https://cdn.s-br01a-product.prod1.vocalcomcx.com/hermes360/HUCC/ProxyHermesFront/Standalone/en/?HUCCLoader=https://cdn.s-br01a-product.prod1.vocalcomcx.com/hermes360/HUCC/ProxyHermesCRMPlugins/Intelet/InteletLoader.js&identification=a8888">
+    </iframe>
+</div>
+
+
+<!-- ============================= -->
+<!-- == SDK Producto User JS ===== -->
+<!-- ============================= -->
+<script>
+function manualCall(){
+    var telefono = document.getElementById('txtTelefono').value;
+    vc.dialManualCall(telefono);
+}
+
+function callAgain(){
+    var telefono = document.getElementById('txtTelefono').value;
+    vc.callAgain(telefono);
+}
+
+function hangUpCall(){
+    vc.hangUpCall();
+}
+
+function setDisposition(){
+    var calificacion = document.getElementById('calificacion').value;
+    vc.setDispositionCode(calificacion);
+}
+</script>
+
+
+<!-- ============================= -->
+<!-- == EVENTOS HUCC ============ -->
+<!-- ============================= -->
+<script type="module">
+import { vc } from "./demo_hucc_custom_plugin.js";
+
+window.vc = vc;   // ← NECESARIO para manualCall(), callAgain(), etc.
+
+vc.onAgentReady(() => setUIState("AGENT_READY"));
+vc.onCallOnline(() => setUIState("CALL_ONLINE"));
+vc.onCallFree(() => setUIState("CALL_FREE"));
+vc.onAgentPause(() => setUIState("AGENT_PAUSE"));
+</script>
+
+<script>
+// Estado inicial antes de recibir eventos HUCC
+document.addEventListener("DOMContentLoaded", function() {
+    setUIState("AGENT_READY");
+});
+</script>
+
+</body>
+</html>
