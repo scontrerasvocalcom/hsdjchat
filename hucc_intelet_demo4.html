@@ -166,8 +166,10 @@
 <!-- == LÓGICA DE CONTROL UI ===== -->
 <!-- ============================= -->
 <script>
+/*
 function setUIState(state) {
 
+	
     const banner = document.getElementById("statusBanner");
     const waiting = document.getElementById("waitingCard");
     const btnManual = document.getElementById("btn_llamadamanual");
@@ -195,7 +197,8 @@ function setUIState(state) {
     }
 
     if(state === "CALL_ONLINE") {
-
+		
+		console.log("ESTAMOS ACATO");
         banner.innerText = "En llamada...";
         banner.classList.add("status-call");
 
@@ -239,6 +242,7 @@ function setUIState(state) {
         btnCalificar.disabled = true;
     }
 }
+*/
 </script>
 
 </head>
@@ -256,20 +260,18 @@ function setUIState(state) {
     <!-- Banner dinámico -->
     <div id="statusBanner" class="status-banner"></div>
 
-    <!-- ESPERANDO LLAMADA -->
-    <div id="waitingCard" class="waiting-card">
-        <div class="waiting-top">
-            <div class="spinner"></div>
-            <div class="waiting-text">ESPERANDO LLAMADA</div>
-        </div>
-        <p class="waiting-sub">Conectando al sistema...</p>
-    </div>
-
+	<!-- ESPERANDO LLAMADA -->
+	<div id="waitingCard" class="waiting-card">
+		<div class="waiting-top">
+			<div class="spinner"></div>
+			<div class="waiting-text">ESPERANDO LLAMADA</div>
+		</div>
+		<p class="waiting-sub">Conectando al sistema...</p>
+	</div>
+	
     <div class="row">
         <input type="text" id="txtTelefono" placeholder="Número...">
-		<script>
-			console.log("VC EN HTML:", window.vc);
-		</script>
+		
         <button id="btn_llamadamanual" onclick="manualCall()">Llamar</button>
         <button id="btn_rellamar" onclick="callAgain()">Rellamar</button>
         <button id="btn_colgar" onclick="hangUpCall()">Colgar</button>
@@ -297,11 +299,26 @@ function setUIState(state) {
         <label id="memo">MEMO:</label>
     </div>
 
+    <div class="row">
+        <select id="cmbPausas">
+			<option value="">Seleccione pausa...</option>
+		</select>
+		<button id="btn_pause" onclick="requestPause()">Pausa</button>
+        <button id="btn_ready" onclick="requestReady()">Disponible</button>
+    </div>
+
+    <div class="row">
+        <button id="btn_login" onclick="loginAgent(8887)">Conectar Agente</button>
+        <button id="btn_logout" onclick="logoutAgent()">Desconectar Agente</button>
+    </div>
+	
+	
+
 </div>
 
 <div class="right-panel">
     <iframe id="hucc_iframe"
-        src="https://cdn.s-br01a-product.prod1.vocalcomcx.com/hermes360/HUCC/ProxyHermesFront/Standalone/en/?HUCCLoader=https://cdn.s-br01a-product.prod1.vocalcomcx.com/hermes360/HUCC/ProxyHermesCRMPlugins/Intelet/InteletLoader.js&identification=a8888">
+        src="https://cdn.s-br01a-product.prod1.vocalcomcx.com/hermes360/HUCC/ProxyHermesFront/Standalone/en/?HUCCLoader=https://cdn.s-br01a-product.prod1.vocalcomcx.com/hermes360/HUCC/ProxyHermesCRMPlugins/Intelet/InteletLoader.js&identification=a8887">
     </iframe>
 </div>
 
@@ -324,9 +341,54 @@ function hangUpCall(){
     vc.hangUpCall();
 }
 
+function loginAgent(extension){
+    vc.loginAgent(extension);
+}
+
+function logoutAgent(){
+    vc.logoutAgent();
+}
+
 function setDisposition(){
     var calificacion = document.getElementById('calificacion').value;
     vc.setDispositionCode(calificacion);
+}
+
+function requestPause(){
+	pauseCode = document.getElementById('cmbPausas').value;
+	if (pauseCode == "" || pauseCode == "undefined"){
+		console.log("Debe seleccionar pausa");
+		return;
+	}
+	vc.requestPause(pauseCode)
+}
+
+function requestReady(){
+    vc.requestReady();
+}
+
+async function getPauseCodes() {
+    try {
+        const resultado = await vc.getPauseCodes(); 
+        console.log("PAUSAS -> ", resultado);
+
+        const listaPausas = resultado.Pausas; // array
+        const combo = document.getElementById("cmbPausas");
+
+        // Limpiar opciones anteriores
+        combo.innerHTML = '<option value="">Seleccione pausa...</option>';
+
+        // Llenar el combobox
+        listaPausas.forEach(p => {
+            const option = document.createElement("option");
+            option.value = p.Code; 
+            option.textContent = p.Description; 
+            combo.appendChild(option);
+        });
+
+    } catch (err) {
+        console.error("Error obteniendo pausas:", err);
+    }
 }
 </script>
 
@@ -335,21 +397,34 @@ function setDisposition(){
 <!-- == EVENTOS HUCC ============ -->
 <!-- ============================= -->
 <script type="module">
-import { vc } from "./demo_hucc_custom_plugin.js";
+import { vcReady } from "./demo_hucc_custom_plugin.js";
 
-window.vc = vc;   // ← NECESARIO para manualCall(), callAgain(), etc.
 
-vc.onAgentReady(() => setUIState("AGENT_READY"));
-vc.onCallOnline(() => setUIState("CALL_ONLINE"));
-vc.onCallFree(() => setUIState("CALL_FREE"));
-vc.onAgentPause(() => setUIState("AGENT_PAUSE"));
-</script>
+vcReady.then(vc => {
 
-<script>
-// Estado inicial antes de recibir eventos HUCC
-document.addEventListener("DOMContentLoaded", function() {
-    setUIState("AGENT_READY");
+    const btnManual = document.getElementById("btn_llamadamanual");
+	const btnRellamar = document.getElementById("btn_rellamar");
+	const btnColgar = document.getElementById("btn_colgar");
+	const comboCal = document.getElementById("calificacion");
+	const btnCalificar = document.getElementById("btn_calificar");
+	const btnPause = document.getElementById("btn_pause");
+	const btnReady = document.getElementById("btn_ready");
+	const btnLogin = document.getElementById("btn_login");
+	const btnLogout = document.getElementById("btn_logout");	
+    btnManual.disabled = true;
+	btnRellamar.disabled = true;
+	btnColgar.disabled = true;
+	comboCal.disabled = true;
+	btnCalificar.disabled = true;
+	btnPause.disabled = true;
+	btnReady.disabled = true;
+	btnLogin.disabled = true;
+	btnLogout.disabled = true;
+	
+	
+    
 });
+
 </script>
 
 </body>

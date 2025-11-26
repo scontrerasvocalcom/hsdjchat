@@ -30,15 +30,43 @@ export class IframeVocalcomBridge {
   hangUpCall() {
     return this.#cmd("hangUpCall", {});
   }
+
+  loginAgent(extension) {
+    return this.#cmd("loginAgent", { extension });
+  }
   
+  logoutAgent(){
+    return this.#cmd("logoutAgent", {});
+  }
+
   setDispositionCode(dispositionCode) {
     return this.#cmd("setDispositionCode", { dispositionCode });
+  }
+
+  requestPause(pauseCode){
+    return this.#cmd("requestPause", { pauseCode });
+  }
+
+  requestReady(){
+    return this.#cmd("requestReady", {});
   }
   
   getPhoneCallData() {
     return this.#cmd("getPhoneCallData", {});
   }
 
+  getCampaigns(){
+	return this.#cmd("getCampaigns", {});
+  }
+  
+  getPauseCodes(){
+	return this.#cmd("getPauseCodes", {});
+  }
+  
+   getManualCampaigns(){
+	return this.#cmd("getManualCampaigns", {});
+  }
+  
   on(eventName, handler) {
     if (!this.#subs.has(eventName)) this.#subs.set(eventName, new Set());
     this.#subs.get(eventName).add(handler);
