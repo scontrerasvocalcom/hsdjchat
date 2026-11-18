@@ -11,5 +11,5 @@ function manualCall(phone){
 		campaignId: null
 	};
 	
-	iframe.contentWindow.postMessage(mensaje, 'https://vcl8-cloud.vocalcom-latam.com');
+	iframe.contentWindow.postMessage(mensaje, 'https://cdn.s-br01a-product.prod1.vocalcomcx.com');
 }
